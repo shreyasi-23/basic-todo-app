@@ -36,6 +36,7 @@ function renderTodos() {
     todoListElement.appendChild(todoItem);
 
     const todoText = document.createElement("div");
+    todoText.id = `todo-text-${todo.id}`;
     todoText.classList.add("todo-text");
     todoText.textContent = todo.text;
     todoItem.appendChild(todoText);
@@ -104,3 +105,22 @@ function renderTodoNavBar(href) {
     }
   }
 }
+
+// Function to toggle the completed status of a todo
+function handleClickOnTodoList(event) {
+  if (event.target.id.includes("todo-text")) {
+    const todoId = event.target.id.split("-").pop();
+    const todoIdNumber = Number(todoId);
+
+    for (let i = 0; i < todos.length; i++) {
+      if (todos[i].id === todoIdNumber) {
+        todos[i].completed = !todos[i].completed;
+      }
+    }
+
+    renderTodos();
+  }
+}
+
+const todoListElement = document.getElementById("todo-list");
+todoListElement.addEventListener("click", handleClickOnTodoList);
