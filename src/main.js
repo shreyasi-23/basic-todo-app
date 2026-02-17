@@ -1,7 +1,7 @@
 import "./style.css";
 
 // Define the state of our app
-const todos = [
+let todos = [
   { id: 1, text: "Buy milk", completed: false },
   { id: 2, text: "Buy bread", completed: false },
   { id: 3, text: "Buy jam", completed: true }
@@ -9,65 +9,67 @@ const todos = [
 let nextTodoId = 4;
 let filter = "all";
 
-// Function to render the todos
-function renderTodos() {
-  const todoListElement = document.getElementById("todo-list");
-  todoListElement.innerHTML = ""; // clear the current list
-
-  // Filter todos based on the current filter setting
-  let filteredTodos = [];
-  for (let i = 0; i < todos.length; i++) {
-    const todo = todos[i];
-    if (filter === "all") {
-      filteredTodos.push(todo);
-    } else if (filter === "completed" && todo.completed) {
-      filteredTodos.push(todo);
-    } else if (filter === "active" && !todo.completed) {
-      filteredTodos.push(todo);
-    }
+// Helper function to filter todos based on the current filter setting
+const filterTodos = (todos, filter) => {
+  if (filter === "active") {
+    return todos.filter((todo) => !todo.completed);
+  } else if (filter === "completed") {
+    return todos.filter((todo) => todo.completed);
+  } else {
+    return [...todos];
   }
+};
 
-  // Helper function to create todo text element
-  const createTodoText = (todo) => {
-    const todoText = document.createElement("div");
-    todoText.id = `todo-text-${todo.id}`;
-    todoText.classList.add("todo-text");
-    todoText.textContent = todo.text;
-    if (todo.completed) {
-      todoText.classList.add("line-through");
-    }
-    return todoText;
-  };
+// Helper function to create todo text element
+const createTodoText = (todo) => {
+  const todoText = document.createElement("div");
+  todoText.id = `todo-text-${todo.id}`;
+  todoText.classList.add("todo-text");
+  todoText.textContent = todo.text;
+  if (todo.completed) {
+    todoText.classList.add("line-through");
+  }
+  return todoText;
+};
 
-  // Helper function to create todo edit input element
-  const createTodoEditInput = (todo) => {
-    const todoEdit = document.createElement("input");
-    todoEdit.classList.add("hidden", "todo-edit");
-    todoEdit.value = todo.text;
-    return todoEdit;
-  };
+// Helper function to create todo edit input element
+const createTodoEditInput = (todo) => {
+  const todoEdit = document.createElement("input");
+  todoEdit.classList.add("hidden", "todo-edit");
+  todoEdit.value = todo.text;
+  return todoEdit;
+};
 
-  // Helper function to create a todo item
-  const createTodoItem = (todo) => {
-    const todoItem = document.createElement("div");
-    todoItem.classList.add("p-4", "todo-item");
-    todoItem.append(createTodoText(todo), createTodoEditInput(todo));
-    return todoItem;
-  };
+// Helper function to create a todo item
+const createTodoItem = (todo) => {
+  const todoItem = document.createElement("div");
+  todoItem.classList.add("p-4", "todo-item");
+  todoItem.append(createTodoText(todo), createTodoEditInput(todo));
+  return todoItem;
+};
 
-  const todoElements = filteredTodos.map(createTodoItem);
-  todoListElement.append(...todoElements);
-}
+// Function to render the todos
+const renderTodos = () => {
+  const todoListElement = document.getElementById("todo-list");
+  todoListElement.replaceChildren(
+    ...filterTodos(todos, filter).map(createTodoItem)
+  );
+};
 
 // Event listener to initialise the app after the DOM content is fully loaded
 document.addEventListener("DOMContentLoaded", renderTodos);
+
+const addTodo = (todos, newTodoText) => [
+  ...todos,
+  { id: nextTodoId++, text: newTodoText, completed: false }
+];
 
 // Function to handle adding a new todo
 function handleNewTodoKeyDown(event) {
   const newTodoInput = event.target;
   const todoText = newTodoInput.value.trim();
   if (event.key === "Enter" && todoText !== "") {
-    todos.push({ id: nextTodoId++, text: todoText, completed: false });
+    todos = addTodo(todos, todoText);
     newTodoInput.value = ""; // clear the input
     renderTodos();
   }
