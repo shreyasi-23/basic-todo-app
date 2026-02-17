@@ -1,23 +1,35 @@
 import "./style.css";
 
-// Define the state of our app
-let todos = [
-  { id: 1, text: "Buy milk", completed: false },
-  { id: 2, text: "Buy bread", completed: false },
-  { id: 3, text: "Buy jam", completed: true }
-];
-let nextTodoId = 4;
-let filter = "all";
+const createTodoApp = () => {
+  let todos = [];
+  let nextTodoId = 1;
+  let filter = "all";
 
-// Helper function to filter todos based on the current filter setting
-const filterTodos = (todos, filter) => {
-  if (filter === "active") {
-    return todos.filter((todo) => !todo.completed);
-  } else if (filter === "completed") {
-    return todos.filter((todo) => todo.completed);
-  } else {
-    return [...todos];
-  }
+  // Helper function to filter todos based on the current filter setting
+  const filterTodos = () => {
+    if (filter === "active") {
+      return todos.filter((todo) => !todo.completed);
+    } else if (filter === "completed") {
+      return todos.filter((todo) => todo.completed);
+    } else {
+      return [...todos];
+    }
+  };
+
+  return {
+    addTodo: (newTodoText) => {
+      todos = [...todos, { id: nextTodoId++, text: newTodoText, completed: false }];
+    },
+    toggleTodo: (todoId) => {
+      todos = todos.map((todo) =>
+        todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
+      );
+    },
+    setFilter: (newFilter) => {
+      filter = newFilter;
+    },
+    getTodos: () => filterTodos()
+  };
 };
 
 // Helper function to create todo text element
@@ -58,11 +70,6 @@ const renderTodos = () => {
 
 // Event listener to initialise the app after the DOM content is fully loaded
 document.addEventListener("DOMContentLoaded", renderTodos);
-
-const addTodo = (todos, newTodoText) => [
-  ...todos,
-  { id: nextTodoId++, text: newTodoText, completed: false }
-];
 
 // Event handler to create a new todo item
 const handleNewTodoKeyDown = (event) => {
@@ -114,12 +121,6 @@ const renderTodoNavBar = (href) => {
     updateClassList(element, element.href === href);
   });
 };
-
-// Helper function to toggle the completed status of a todo item
-const toggleTodo = (todos, todoId) =>
-  todos.map((todo) =>
-    todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
-  );
 
 // Event handler to toggle the completed status of a todo item
 const handleClickOnTodoList = (event) => {
